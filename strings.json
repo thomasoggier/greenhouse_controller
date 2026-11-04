@@ -1,0 +1,58 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Sélection des Entités",
+        "description": "Sélectionnez les capteurs et les relais de commande de la serre.",
+        "data": {
+          "sensor_temp_in": "Capteur de température intérieur",
+          "sensor_temp_out": "Capteur de température extérieur",
+          "binary_sensor_rain": "Capteur / Alarme Pluie",
+          "binary_sensor_wind": "Capteur / Alarme Vent",
+          "switch_open": "Relais / Commande OUVERTURE",
+          "switch_close": "Relais / Commande FERMETURE"
+        }
+      },
+      "parameters": {
+        "title": "Paramètres de Régulation et Sécurités",
+        "description": "Configurez les seuils PI, les pas, les ouvertures max et les temps de temporisation.",
+        "data": {
+          "temperature_target_min": "Température cible Min (°C)",
+          "temperature_target_max": "Température cible Max (°C)",
+          "kp": "Gain Proportionnel (Kp)",
+          "ki": "Gain Intégral (Ki)",
+          "integral_max": "Intégrale Max",
+          "step_size_pct": "Taille de pas (%)",
+          "time_max_to_open": "Temps complet d'ouverture (secondes)",
+          "time_max_to_open_overload": "Overload ouverture (secondes)",
+          "ouverture_max_vent": "Ouverture max sous vent (%)",
+          "ouverture_max_pluie": "Ouverture max sous pluie (%)",
+          "delay_after_wind": "Temps d'attente après le vent (minutes)",
+          "delay_after_rain": "Temps d'attente après la pluie (minutes)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Modifier les Paramètres de la Serre",
+        "description": "Modifiez les paramètres de régulation, de pas et de sécurité.",
+        "data": {
+          "temperature_target_min": "Température cible Min (°C)",
+          "temperature_target_max": "Température cible Max (°C)",
+          "kp": "Gain Proportionnel (Kp)",
+          "ki": "Gain Intégral (Ki)",
+          "integral_max": "Intégrale Max",
+          "step_size_pct": "Taille de pas (%)",
+          "time_max_to_open": "Temps complet d'ouverture (secondes)",
+          "time_max_to_open_overload": "Overload ouverture (secondes)",
+          "ouverture_max_vent": "Ouverture max sous vent (%)",
+          "ouverture_max_pluie": "Ouverture max sous pluie (%)",
+          "delay_after_wind": "Temps d'attente après le vent (minutes)",
+          "delay_after_rain": "Temps d'attente après la pluie (minutes)"
+        }
+      }
+    }
+  }
+}

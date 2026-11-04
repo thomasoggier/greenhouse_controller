@@ -1,0 +1,11 @@
+{
+  "domain": "greenhouse",
+  "name": "Greenhouse Controller",
+  "documentation": "https://github.com/thomas/greenhouse",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": ["@thomas"],
+  "iot_class": "local_polling",
+  "version": "1.0.0",
+  "config_flow": true
+}
