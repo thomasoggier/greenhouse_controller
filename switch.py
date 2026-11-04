@@ -5,6 +5,7 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
 from .cover import GreenhouseCoordinator
@@ -22,8 +23,8 @@ async def async_setup_entry(
     ])
 
 
-class GreenhouseManualModeSwitch(SwitchEntity):
-    """Interrupteur pour activer/désactiver le mode manuel de la serre."""
+class GreenhouseManualModeSwitch(SwitchEntity, RestoreEntity):
+    """Interrupteur pour activer/désactiver le mode manuel de la serre (avec restauration)."""
 
     def __init__(self, coordinator: GreenhouseCoordinator) -> None:
         self.coordinator = coordinator
@@ -39,6 +40,14 @@ class GreenhouseManualModeSwitch(SwitchEntity):
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
         self.coordinator.register_listener(self.async_write_ha_state)
+
+        # Restauration de l'état précédent au démarrage
+        if (last_state := await self.async_get_last_state()) is not None:
+            self.coordinator.is_manual = (last_state.state == "on")
+            _LOGGER = logging.getLogger(__name__) if '_LOGGER' in globals() else None
+            # On synchronise l'état dans le coordinateur
+            if self.coordinator.is_manual:
+                await self.coordinator.async_run_regulation()
 
     @property
     def is_on(self) -> bool:
@@ -57,8 +66,8 @@ class GreenhouseManualModeSwitch(SwitchEntity):
         return "mdi:hand-back-right" if self.is_on else "mdi:robot"
 
 
-class GreenhouseRegulationSwitch(SwitchEntity):
-    """Interrupteur pour activer/désactiver le calcul sur changement de température."""
+class GreenhouseRegulationSwitch(SwitchEntity, RestoreEntity):
+    """Interrupteur pour activer/désactiver le calcul sur changement de température (avec restauration)."""
 
     def __init__(self, coordinator: GreenhouseCoordinator) -> None:
         self.coordinator = coordinator
@@ -74,6 +83,12 @@ class GreenhouseRegulationSwitch(SwitchEntity):
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
         self.coordinator.register_listener(self.async_write_ha_state)
+
+        # Restauration de l'état précédent au démarrage (par défaut True si jamais enregistré)
+        if (last_state := await self.async_get_last_state()) is not None:
+            self.coordinator.enable_regulation_on_change = (last_state.state == "on")
+        else:
+            self.coordinator.enable_regulation_on_change = True
 
     @property
     def is_on(self) -> bool:
