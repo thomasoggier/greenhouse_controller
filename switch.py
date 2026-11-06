@@ -1,6 +1,8 @@
 """Platform for switch integration (Greenhouse Controller switches)."""
 from __future__ import annotations
 
+import logging
+
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -9,6 +11,8 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import DOMAIN
 from .cover import GreenhouseCoordinator
+
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -44,8 +48,6 @@ class GreenhouseManualModeSwitch(SwitchEntity, RestoreEntity):
         # Restauration de l'état précédent au démarrage
         if (last_state := await self.async_get_last_state()) is not None:
             self.coordinator.is_manual = (last_state.state == "on")
-            _LOGGER = logging.getLogger(__name__) if '_LOGGER' in globals() else None
-            # On synchronise l'état dans le coordinateur
             if self.coordinator.is_manual:
                 await self.coordinator.async_run_regulation()
 
@@ -56,10 +58,12 @@ class GreenhouseManualModeSwitch(SwitchEntity, RestoreEntity):
     async def async_turn_on(self, **kwargs) -> None:
         self.coordinator.is_manual = True
         await self.coordinator.async_run_regulation()
+        self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs) -> None:
         self.coordinator.is_manual = False
         await self.coordinator.async_run_regulation()
+        self.async_write_ha_state()
 
     @property
     def icon(self) -> str:

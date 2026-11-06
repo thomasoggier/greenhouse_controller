@@ -63,7 +63,9 @@ class GreenhouseTargetSensor(GreenhouseBaseSensor):
         return f"{self.coordinator._entry.entry_id}_target"
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
+        if self.coordinator.target_position is None:
+            return None
         return int(self.coordinator.target_position)
 
     @property

@@ -74,11 +74,11 @@ class GreenhouseCoordinator:
         self._entry = entry
         
         self.position = 0
-        self.target_position = 0
+        self.target_position = None
         self.output_pi_precise = 0.0
         self.is_opening = False
         self.is_closing = False
-        self.status_mode = "normal"
+        self.status_mode = "start"
         
         # États manuels et interrupteur gérés en interne
         self.is_manual = False
@@ -117,8 +117,16 @@ class GreenhouseCoordinator:
                 if state.state == "closed":
                     self.position = 0
                     self.target_position = 0
+                    return
             except ValueError:
                 pass
+        
+        # Si aucun état valide n'est trouvé au démarrage, on force une position par défaut sécurisée 
+        # (par exemple 0 fermé ou on bloque la régulation automatique tant qu'un statut manuel/explicite n'est pas donné)
+        if self.position is None:
+            _LOGGER.warning("Greenhouse Position | Impossible de restaurer l'état précédent. Position initialisée par sécurité à 0% (fermée).")
+            self.position = 0
+            self.target_position = 0
 
     async def async_run_regulation(self) -> None:
         # Sécurité : Si la serre est déjà en mouvement, on ignore ce cycle
@@ -136,7 +144,7 @@ class GreenhouseCoordinator:
             self.notify_listeners()
             if self.manual_position != self.target_position or self.manual_position in (0, 100):
                 await self._move_to(self.manual_position)
-            return
+            return      
 
         # 2. Lecture sécurisée des capteurs de température
         temp_in_state = self.hass.states.get(cfg.get(CONF_SENSOR_TEMP_IN))
@@ -267,6 +275,9 @@ class GreenhouseCoordinator:
             await self._move_to(ouverture_finale)
 
     async def _move_to(self, target_position: int) -> None:
+        if self.position is None:
+            _LOGGER.error("Greenhouse Move | Position actuelle inconnue. Impossible de calculer le déplacement.")
+            return
         if self._move_task and not self._move_task.done():
             self._move_task.cancel()
 
